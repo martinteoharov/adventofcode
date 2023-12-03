@@ -9,21 +9,13 @@ sym = lambda e: not e.isalnum()
 
 # check if anything adjacent is a symbol
 def is_adj(lines, li, ci):
-    if sym(lines[li][ci - 1]) or sym(lines[li][min(ci + 1, len(lines[li]) - 1)]):
-        return True
+    dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    mn, mx = 0, len(lines[li]) - 1
 
-    if li > 0:
-        top = lines[li - 1]
-        if sym(top[ci]) or sym(top[min(ci + 1, len(top) - 1)]) or sym(top[ci - 1]):
-            return True
-
-    if li < len(lines) - 1:
-        bottom = lines[li + 1]
-        if (
-            sym(bottom[ci])
-            or sym(bottom[min(ci + 1, len(bottom) - 1)])
-            or sym(bottom[ci - 1])
-        ):
+    for d in dirs:
+        # constrain values between min and max
+        nli, nci = min(max(li + d[0], mn), mx), min(max(ci + d[1], 0), mx)
+        if sym(lines[nli][nci]):
             return True
 
     return False

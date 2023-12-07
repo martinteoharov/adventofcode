@@ -3,37 +3,35 @@ import numpy as np
 from numpy import interp
 import re
 
+# Read and parse lines
 lines = [[int(i) for i in re.findall(r"\d+", l)] for l in sys.stdin.readlines()]
 
-input_values, ranges = np.array(lines[0]), np.array(
-    [l if len(l) == 3 else [-1, -1, -1] for l in lines[1:]]
-)
+# Process input and ranges
+input_values, raw_ranges = np.array(lines[0]), lines[1:]
 
-inp = np.concatenate(
+# Generate input array using vectorized operations
+input_array = np.concatenate(
     [
         np.arange(start, start + count)
         for start, count in zip(input_values[::2], input_values[1::2])
     ]
 )
 
-print("before copy")
-# Copy inp to a mutable array
-input_array = np.copy(inp)
-print("after copy")
+# Filter and precompute source and destination ranges
+precomputed_ranges = [
+    (srs, srs + lr, drs, drs + lr)
+    for drs, srs, lr in raw_ranges
+    if len(drs, srs, lr) == 3
+]
 
-for idx in range(len(input_array)):
-    reset = True
+# Apply interpolation
+for idx, (srs, srs_end, drs, drs_end) in enumerate(precomputed_ranges):
+    mask = (input_array >= srs) & (input_array < srs_end)
+    input_array[mask] = interp(input_array[mask], [srs, srs_end], [drs, drs_end])
 
-    for drs, srs, lr in ranges:
-        if drs == -1:
-            reset = True
-            continue
+    # Print progress
+    print(f"Processing range {idx + 1}/{len(precomputed_ranges)}", end="\r")
 
-        src_range, dest_range = [srs, srs + lr], [drs, drs + lr]
-
-        if srs <= input_array[idx] < (srs + lr) and reset:
-            input_array[idx] = interp(input_array[idx], src_range, dest_range)
-            reset = False
-
+# Calculate the minimum value
 min_value = np.min(input_array)
-print(min_value)
+print("\nMinimum value:", min_value)

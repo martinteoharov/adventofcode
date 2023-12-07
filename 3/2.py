@@ -1,3 +1,5 @@
+from collections import defaultdict
+from numpy import prod
 import sys
 import re
 
@@ -5,6 +7,8 @@ import re
 lines = [[*line.replace(".", "d").replace("\n", "")] for line in sys.stdin.readlines()]
 # func to check if a string contains a symbol
 sym = lambda e: not e.isalnum()
+
+gear_dict = defaultdict(list)
 
 
 # check if anything adjacent is a symbol
@@ -15,24 +19,10 @@ def is_adj(lines, li, ci):
     for d in dirs:
         # constrain values between min and max
         nli, nci = min(max(li + d[0], mn), mx), min(max(ci + d[1], 0), mx)
-        if sym(lines[nli][nci]):
-            return True
+        if lines[nli][nci] == "*":
+            return True, (nli, nci)
 
     return False
-
-
-def find_adj_numbers():
-    # Have a set of (line_idx, range())
-    # ...
-
-    # Check for nearby digits and get the index of the digit
-    # ...
-
-    # Check if digit is part of a larger number
-    # by going through all of the ranges
-    # ...
-
-    pass
 
 
 s = 0
@@ -40,7 +30,17 @@ for li, l in enumerate(lines):
     for m in re.finditer(r"\d+", "".join(l)):
         for i in range(m.start(), m.end()):
             if is_adj(lines, li, i):
-                s += int(m.group())
+                _, loc = is_adj(lines, li, i)
+                nli, nci = loc
+                gear_dict[f"{nli}.{nci}"].append(int(m.group()))
                 break
 
+print(s)
+
+
+s = 0
+for v in gear_dict.values():
+    print(v)
+    if len(v) == 2:
+        s += prod([int(i) for i in v])
 print(s)

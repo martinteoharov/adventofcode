@@ -1,6 +1,5 @@
 import re
 import sys
-import concurrent.futures
 
 cards = [line for line in sys.stdin.readlines()]
 
@@ -26,8 +25,4 @@ def rec_proc(idx, cards):
     return 1 + sum([rec_proc(i, cards) for i in range(idx + 1, idx + cl + 1)])
 
 
-s = 0
-for idx, card in enumerate(cards):
-    s += rec_proc(idx, cards)
-
-print(s)
+print(sum([rec_proc(idx, cards) for idx, card in enumerate(cards)]))

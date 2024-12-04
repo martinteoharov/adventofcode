@@ -1,6 +1,7 @@
 import re
 import sys
 
+
 mul = lambda a, b: a * b  # noqa: E731
 pattern = r"mul\(\d+,\d+\)|don't\(\)|do\(\)"
 

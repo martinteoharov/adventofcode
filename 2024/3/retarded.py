@@ -1,17 +1,14 @@
 import re
 import sys
 
-mul = lambda a, b: a * b  # noqa: E731
-pattern = r"mul\(\d+,\d+\)|don't\(\)|do\(\)"
-
 state = '1'
-expression = ''
-for instr in re.findall(pattern, sys.stdin.read()):
-    if instr == "don't()":
-        state = '0'
-    elif instr == 'do()':
-        state = '1'
-    elif instr.startswith('mul'):
-        expression += '+(' + instr + ')*' + state
+expr = ''
 
-print(eval(expression.lstrip('+')))
+def dont(): global state; state = '0'
+def do(): global state; state = '1'
+def mul(a, b): global expr; expr += f'+({int(a)*int(b)})*{state}'
+
+input_text = sys.stdin.read().replace("don't()", "dont()")
+exec(';'.join(re.findall(r"mul\(\d+,\d+\)|dont\(\)|do\(\)", input_text)))
+
+print(eval(expr.lstrip('+')))
